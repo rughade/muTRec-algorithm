@@ -41,7 +41,7 @@ def _variance_terms(xeta: jnp.ndarray, X0: float, p_muon: float, DE: float, cons
     return variance_theta, variance_y, variance_th_y
 
 
-def muTRec_reshma(p1: jnp.ndarray,
+def muTRec_Reshma(p1: jnp.ndarray,
                           p2: jnp.ndarray,
                           p3: jnp.ndarray,
                           p4: jnp.ndarray,
