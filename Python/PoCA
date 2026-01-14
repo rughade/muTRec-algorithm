@@ -1,1 +1,16 @@
-
+def poca_stylianos(p1, p2, p3, p4):
+    """Optional: PoCA version (not used by default)."""
+    u = p2 - p1
+    v = p4 - p3
+    w0 = p1 - p3
+    a = jnp.dot(u, u)
+    b = jnp.dot(u, v)
+    c = jnp.dot(v, v)
+    d = jnp.dot(u, w0)
+    e = jnp.dot(v, w0)
+    denom = a * c - b * b
+    s = jnp.where(denom != 0, (b * e - c * d) / denom, 0.0)
+    t = jnp.where(denom != 0, (a * e - b * d) / denom, 0.0)
+    P = p1 + s * u
+    Q = p3 + t * v
+    return 0.5 * (P + Q)
