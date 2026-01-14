@@ -69,12 +69,12 @@ def muTRec_reshma(p1: jnp.ndarray,
     RA = jnp.stack([
         jnp.stack([jnp.ones_like(z), z - p2[2]], axis=-1),
         jnp.stack([jnp.zeros_like(z), jnp.ones_like(z)], axis=-1)
-    ], axis=-2)  # (T,2,2)
+    ], axis=-2)  
 
     RB = jnp.stack([
         jnp.stack([jnp.ones_like(z), p3[2] - z], axis=-1),
         jnp.stack([jnp.zeros_like(z), jnp.ones_like(z)], axis=-1)
-    ], axis=-2)  # (T,2,2)
+    ], axis=-2)  
 
     # Covariance blocks
     xeta1 = z - p1[2] 
@@ -103,10 +103,10 @@ def muTRec_reshma(p1: jnp.ndarray,
         M = invS1 + RB_T @ S2_RB  # (T,2,2)
 
         rhs1 = invS1 @ (RA @ YA_b[..., None])  # (T,2,1)
-        rhs2 = RB_T @ (jnp.linalg.solve(S2, YB_b[..., None]))  # (T,2,1)
+        rhs2 = RB_T @ (jnp.linalg.solve(S2, YB_b[..., None]))  
         rhs = (rhs1 + rhs2)[..., 0]  # (T,2)
 
-        # out   = jnp.linalg.solve(M, rhs)                # (T,2)
+        # out   = jnp.linalg.solve(M, rhs)                
         out = jnp.linalg.solve(M, rhs[..., None]).squeeze(-1)
         # out[...,0] = position, out[...,1] = angle
         return out[..., 0], out[..., 1]
