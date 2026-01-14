@@ -33,7 +33,7 @@ function [x_TRec, y_TRec, z_TRec] = muTRec_Reshma(p1, p2, p3, p4, voxel_size, X0
 z_TRec(j) = z1; % Start point        
 
 % Covariance matrix calculations (S1)
-        xeta = z1 - p1(2);
+        xeta = z1 - p1(3);
         term = (p_muon.^2) - (DE .* p_muon .* xeta);  
         variance_theta = const1 * (xeta / X0) * (1 ./ term) * ((1 + 0.038 * log(xeta / X0))^2);
         variance_y = (xeta^2) * variance_theta / 3;
@@ -45,7 +45,7 @@ z_TRec(j) = z1; % Start point
         Y0_x = [(p2(1)); entry_angle_x]; 
 
 % Covariance matrix calculations (S2)        
-        xeta = p4(2) - z1; %cube_size + start_point(1,3)- z1; % cube_size + 2*start_point(1,3) – z1;
+        xeta = p4(3) - z1; %cube_size + start_point(1,3)- z1; % cube_size + 2*start_point(1,3) – z1;
         term = (p_muon.^2) - (DE .* p_muon .* xeta);
         variance_theta = const1 * (xeta / X0) * (1 ./ term) * ((1 + 0.038 * log(xeta / X0))^2);
         variance_y = (xeta^2) * variance_theta / 3;
