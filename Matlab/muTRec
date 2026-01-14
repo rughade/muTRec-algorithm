@@ -1,1 +1,75 @@
+#Implementation of the μTRec muon trajectory reconstruction algorithm configured for a 4×4×4 m³ reconstruction volume, with detectors positioned at z = 1 m, 1.3 m, 6.7 m, and 7 m.
 
+function [x_TRec, y_TRec, z_TRec] = muTRec_Reshma(p1, p2, p3, p4, voxel_size, X0, cube_size, p_muon, DE, start_point)
+
+% This function estimates the trajectory of muon traversing a scattering medium using Bayesian statistical model that incorporates energy loss and Gaussian approximation of  multiple Coulomb scattering (MCS). 
+
+%   Inputs:
+%       p1, p2, p3, p4     : 3D coordinates (mm) from top and bottom detector 
+                             pairs
+%       voxel_size         : Voxel size for reconstruction volume (mm)
+%       X0                 : Radiation length of the material (mm)
+%       cube_size          : Size of the reconstruction volume (mm)
+%       p_muon             : Average muon momentum (MeV/c)
+%       DE                 : Energy loss constant (MeV/mm)
+%       start_point        : Starting position of the reconstruction volume 
+                             in z-direction (mm)
+%
+%   Outputs:
+%       x_TRec, y_TRec, z_TRec : Estimated trajectory coordinates (mm) 
+
+    % Constants
+    const1 = 13.6^2; % MCS scattering constant (MeV^2)
+    dt_step = floor((1 / voxel_size) * cube_size); % Number of steps in z direction
+
+    % Initialize variables
+    z1 = start_point(1,3)-0.001;% 
+    entry_angle_y = atan2((p2(2) - p1(2)), (p2(3) - p1(3)));
+    exit_angle_y = atan2((p4(2) - p3(2)), (p4(3) - p3(3)));
+    entry_angle_x = atan2((p2(1) - p1(1)), (p2(3) - p1(3)));
+    exit_angle_x = atan2((p4(1) - p3(1)), (p4(3) - p3(3)));
+ 
+    for j = 1:dt_step
+z_TRec(j) = z1; % Start point        
+
+% Covariance matrix calculations (S1)
+        xeta = z1 - p1(3);
+        term = (p_muon.^2) - (DE .* p_muon .* xeta);  
+        variance_theta = const1 * (xeta / X0) * (1 ./ term) * ((1 + 0.038 * log(xeta / X0))^2);
+        variance_y = (xeta^2) * variance_theta / 3;
+        variance_th_y = 0.5 * sqrt(3) * sqrt(variance_theta * variance_y);
+ 
+        S1 = [variance_y variance_th_y; variance_th_y variance_theta];
+        R0 = [1 z1-p2(3); 0 1]; %
+        Y0 = [p2(2); entry_angle_y]; 
+        Y0_x = [(p2(1)); entry_angle_x]; 
+
+% Covariance matrix calculations (S2)        
+        xeta = p4(3) - z1; %cube_size + start_point(1,3)- z1; % cube_size + 2*start_point(1,3) – z1;
+        term = (p_muon.^2) - (DE .* p_muon .* xeta);
+        variance_theta = const1 * (xeta / X0) * (1 ./ term) * ((1 + 0.038 * log(xeta / X0))^2);
+        variance_y = (xeta^2) * variance_theta / 3;
+        variance_th_y = 0.5 * sqrt(3) * sqrt(variance_theta * variance_y);
+ 
+        S2 = [variance_y variance_th_y; variance_th_y variance_theta];
+        R2 = [1 p3(3)-z1; 0 1]; 
+        Y2 = [p3(2); exit_angle_y];
+        Y2_x = [p3(1); exit_angle_x];
+ 
+        % y_TRec
+        Y_GMTE = (inv(S1) + R2' * (S2 \ R2)) \ (inv(S1) * R0 * Y0 + R2' * (S2 \ Y2));
+        y_gmte(:, j) = Y_GMTE;
+        y_TRec = y_gmte(1, :);
+        
+        % x_TRec
+        X_GMTE = (inv(S1) + R2' * (S2 \ R2)) \ (inv(S1) * R0 * Y0_x + R2' * (S2 \ Y2_x));
+        x_gmte(:, j) = X_GMTE;
+        x_TRec = x_gmte(1, :);
+ 
+        % Increment z1
+        z1 = z1 + voxel_size;
+    end
+end
+
+%===============================  END  ====================================
+ 
