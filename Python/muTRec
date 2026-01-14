@@ -53,7 +53,7 @@ def muTRec_reshma(p1: jnp.ndarray,
     start_z = params.start_point[2]
     T = int(round(params.cube_size / params.voxel_size))
     z0 = start_z - 1e-3
-    z = z0 + params.voxel_size * jnp.arange(T, dtype=jnp.float32)  # (T,)
+    z = z0 + params.voxel_size * jnp.arange(T, dtype=jnp.float32)  
 
     # Entry/exit angles
     entry_x, entry_y = _angles_xy(p1, p2)  # scalars
@@ -84,12 +84,12 @@ def muTRec_reshma(p1: jnp.ndarray,
         jnp.stack([vth1, vt1], axis=-1)
     ], axis=-2)  
 
-    xeta2 = p4[2] - z #params.cube_size + 2.0 * start_z - z
+    xeta2 = p4[2] - z 
     vt2, vy2, vth2 = _variance_terms(xeta2, params.X0, params.p_muon, params.DE, params.const1)
     S2 = jnp.stack([
         jnp.stack([vy2, vth2], axis=-1),
         jnp.stack([vth2, vt2], axis=-1)
-    ], axis=-2)  # (T,2,2)
+    ], axis=-2)  
 
     # Helper to compute MLP solution for (YA, YB)
     def solve_component(YA: jnp.ndarray, YB: jnp.ndarray):
