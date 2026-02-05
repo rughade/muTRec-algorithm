@@ -1,3 +1,16 @@
+from __future__ import annotations
+
+from typing import Tuple
+
+# Enable 64-bit for MATLAB-like numerics
+from jax import config as _jaxconfig
+# _jaxconfig.update("jax_enable_x64", True)
+
+import jax
+import jax.numpy as jnp
+from .params import ReconParams
+
+
 def _angles_xy(p1: jnp.ndarray, p2: jnp.ndarray) -> Tuple[jnp.ndarray, jnp.ndarray]:
     """
     p1, p2: (...,3)
@@ -41,7 +54,7 @@ def _variance_terms(xeta: jnp.ndarray, X0: float, p_muon: float, DE: float, cons
     return variance_theta, variance_y, variance_th_y
 
 
-def muTRec_Reshma(p1: jnp.ndarray,
+def mutrec_reshma(p1: jnp.ndarray,
                           p2: jnp.ndarray,
                           p3: jnp.ndarray,
                           p4: jnp.ndarray,
@@ -117,9 +130,21 @@ def muTRec_Reshma(p1: jnp.ndarray,
     return x_gmte, y_gmte, z, theta_x_gmte, theta_y_gmte
 
 
+# batched (vectorized) GMTE across many muons
+_mutrec_vmap = jax.jit(
+    jax.vmap(mutrec_reshma, in_axes=(0, 0, 0, 0, None)),
+    static_argnums=(4,)
+)
 
 
-
+def mutrec_reshma_batch(p1, p2, p3, p4, params: ReconParams):
+    """
+    p1..p4: (B,3)
+    returns x,y,z,theta_x,theta_y each (B,T)
+    """
+    x, y, z, thx, thy = _mutrec_vmap(p1, p2, p3, p4, params)
+    # z is identical across muons → collapse to (T,)
+    return x, y, z[0], thx, thy
 
 
 

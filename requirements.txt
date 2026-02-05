@@ -1,0 +1,5 @@
+pytest
+numpy
+jax>=0.5.0
+matplotlib
+imageio>=2.0.0
