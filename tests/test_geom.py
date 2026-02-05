@@ -1,9 +1,7 @@
 """
 Tests for geometry calculations (MuTRec, scattering angles, etc.).
 """
-import pytest
 import jax.numpy as jnp
-import numpy as np
 from Python.muTRec import (
     _angles_xy,
     scattering_angle_signal,
