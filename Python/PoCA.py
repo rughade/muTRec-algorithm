@@ -1,4 +1,6 @@
-def PoCA_Reshma(p1, p2, p3, p4):
+import jax.numpy as jnp
+
+def poca_reshma(p1, p2, p3, p4):
     """Optional: PoCA version (not used by default)."""
     u = p2 - p1
     v = p4 - p3
